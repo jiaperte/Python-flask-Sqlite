@@ -21,6 +21,3 @@ class TestClass(object):
         data = response.get_data(as_text=True)
         assert response.status_code == 200
 
-    # def test_index(self):
-    #     response = self.app.get('/')
-    #     assert b'hello' == response.data
