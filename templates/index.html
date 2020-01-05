@@ -1,0 +1,135 @@
+<html>
+  <head> </head>
+  <body>
+    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <script type="text/javascript">
+      $(function() {
+        get_data();
+      });
+
+      function get_data() {
+        $.ajax({
+          url: "/getAll",
+          contentType: "application/json",
+          type: "GET",
+          success: function(response) {
+            var res = JSON.parse(response);
+            obs = res.observations;
+            var innerObHtml =
+              "<tr><th>ID</th><th>Survey_ID</th><th>Value</th><th>Frequency</th><th>Action</th></tr>";
+            for (let i = 0; i < obs.length; i++) {
+              innerObHtml =
+                innerObHtml +
+                "<tr><td>" +
+                obs[i].id +
+                "</td><td>" +
+                obs[i].survey_id +
+                "</td><td>" +
+                obs[i].value +
+                "</td><td>" +
+                obs[i].frequency +
+                "</td><td>" +
+                "<button onclick='modifyObser(" +
+                obs[i].id +
+                "," +
+                obs[i].survey_id +
+                "," +
+                obs[i].value +
+                "," +
+                obs[i].frequency +
+                ")'>Modify</button><button onclick='deleteObser(" +
+                obs[i].id +
+                ")'>Delete</button>" +
+                "</td></tr>";
+            }
+            $("#obTable").html(innerObHtml);
+
+            var innerSuHtml =
+              "<tr><th>ID</th><th>Name</th><th>Action</th></tr>";
+            su = res.surveys;
+            for (let i = 0; i < su.length; i++) {
+              innerSuHtml =
+                innerSuHtml +
+                "<tr><td>" +
+                su[i].id +
+                "</td><td>" +
+                su[i].name +
+                "</td><td><button onclick='modifySurvey(" +
+                su[i].id +
+                ',"' +
+                su[i].name +
+                "\")'>Modify</button><button onclick='deleteSurvey(" +
+                su[i].id +
+                ")'>Delete</button></td></tr>";
+            }
+            $("#suTable").html(innerSuHtml);
+          },
+          error: function(error) {
+            console.log(error);
+          }
+        });
+      }
+      function deleteSurvey(id) {
+        var xhr = new XMLHttpRequest();
+        var url = "/survey/" + id;
+        xhr.open("delete", url, true);
+        xhr.send(null);
+        xhr.onreadystatechange = function() {
+          window.location.reload();
+        };
+      }
+      function modifySurvey(id, name) {
+        var dig = document.getElementById("dialogs");
+        dig.show();
+        document.getElementById("name").value = name;
+        document.getElementById("diagsForm").action = "/survey/" + id;
+      }
+      function deleteObser(id) {
+        var xhr = new XMLHttpRequest();
+        var url = "/statObservation/" + id;
+        xhr.open("delete", url, true);
+        xhr.send(null);
+        xhr.onreadystatechange = function() {
+          window.location.reload();
+        };
+      }
+      function modifyObser(id, survey_id, value, frequency) {
+        var dig = document.getElementById("dialogo");
+        dig.show();
+        document.getElementById("survey_id").value = survey_id;
+        document.getElementById("od_value").value = value;
+        document.getElementById("frequency").value = frequency;
+        document.getElementById("diagoForm").action = "/statObservation/" + id;
+      }
+    </script>
+    <form method="POST" action="/survey">
+      <input type="text" name="name" />
+      <input type="submit" value="Add" />
+    </form>
+    <dialog id="dialogs">
+      <form id="diagsForm" method="POST" action="">
+        <label>Name:</label>
+        <input type="text" name="name" id="name" />
+        <input type="submit" value="Modify" />
+      </form>
+    </dialog>
+    <table border="4" id="suTable"></table>
+
+    <br />
+    <dialog id="dialogo">
+      <form id="diagoForm" method="POST" action="">
+        <label>survey_id:</label>
+        <input type="text" name="survey_id" id="survey_id" />
+        <br />
+        <label>value:</label>
+        <input type="text" name="value" id="od_value" />
+        <br />
+        <label>frequency:</label>
+        <input type="text" name="frequency" id="frequency" />
+        <br />
+        <input type="submit" value="Modify" />
+      </form>
+    </dialog>
+    <table border="4" id="obTable"></table>
+  </body>
+</html>
